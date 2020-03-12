@@ -1,0 +1,13 @@
+
+.treeItem {
+  &:hover {
+    .insertIcon {
+      display: inline-block;
+    }
+  }
+  .insertIcon {
+    display: none;
+    margin-left: 10px;
+    
+  }
+}

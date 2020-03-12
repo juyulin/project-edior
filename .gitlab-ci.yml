@@ -1,0 +1,34 @@
+image: node:last
+
+cache:
+  paths:
+  - node_modules/
+  - dist/
+
+stages:
+  - build
+  - deploy
+  
+build:
+  stage: build
+  script: 
+    - echo "Building the app"
+    - crgt install
+    - rm -rf ./dist
+    - npm run build
+  tags:
+    - fe
+
+
+
+
+# 宙斯部署
+deploy-web:
+  stage: deploy
+  script:
+    - crgt deploy-web ./dist
+  only:
+    - triggers
+  tags:
+    - fe
+

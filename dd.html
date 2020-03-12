@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>图片上传</title>
+    <link rel="icon" href="/favicon.png" type="image/x-icon" />
+    <style>
+      #root {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      #dragandrophandler {
+        border: 0.2rem dashed #616778;
+        border-radius: 10px;
+        /* width: 400px; */
+        color: #40444f;
+        text-align: left;
+        vertical-align: middle;
+        /* padding: 10px 10px 10 10px; */
+        height: 300px;
+        text-align: center;
+        line-height: 300px;
+        margin-bottom: 10px;
+        font-size: 200%;
+      }
+      #status {
+        padding: 1.2rem;
+        border: 0.1rem solid #bbcbd0;
+      }
+      .progressBar {
+        width: 200px;
+        height: 22px;
+        border: 2px solid #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        display: inline-block;
+        /* margin: 0px 10px 5px 5px; */
+        vertical-align: middle;
+        box-shadow: #aaa 0 0 5px;
+      }
+      .progressBar div {
+        height: 100%;
+        color: #fff;
+        text-align: right;
+        line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+        width: 0;
+        padding-right: 10px;
+        background-color: #92ed14;
+        border-radius: 3px;
+        box-sizing: border-box;
+      }
+      .statusbar {
+        margin: 0.4rem;
+        padding: 0 1.28rem;
+        background: #f0f0f0;
+        border: 0.1rem solid #cfdbde;
+        border-radius: 0.2rem;
+        font-weight: bold;
+        line-height: 2.8rem;
+        color: #363a43;
+        transition: all 0.5s;
+        
+        opacity: 0;
+      }
+      .filename {
+        display: inline-block;
+        vertical-align: top;
+        width: 250px;
+      }
+      .filesize {
+        display: inline-block;
+        vertical-align: top;
+        color: #7eb631;
+        width: 100px;
+        margin-left: 10px;
+        margin-right: 5px;
+      }
+      .url {
+        display: inline-block;
+        margin-left: 100px;
+      }
+      .br {
+        border-top: 5px dashed #616778;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="dragandrophandler">Drag & Drop Images Here</div>
+      <div id="status"></div>
+      <div id="status1"></div>
+    </div>
+    <script src="https://static.ccrgt.com/lib/jquery-3.3.1.min.js"></script>
+    <script>
+        window.uploadURL = 'https://basetool.ccrgt.com/fileupload/fileUp';
+    </script>
+    <script>
+      $(function() {
+        var $obj = $('#dragandrophandler');
+        $obj.on('dragenter', function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          $(this).css('border-color', '#92ed14');
+        });
+        $obj.on('dragover', function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+        });
+        $obj.on('drop', function(e) {
+          $(this).css('border-color', '#616778');
+          e.preventDefault();
+          var files = e.originalEvent.dataTransfer.files;
+
+          //We need to send dropped files to Server
+          handleFileUpload(files, $obj);
+        });
+
+        $(document).on({
+          dragleave: function(e) {
+            e.preventDefault();
+          },
+          dragenter: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+          },
+          dragover: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $obj.css('border-color', '#616778');
+          },
+          drop: function(e) {
+            e.preventDefault();
+          }
+        });
+        initStatus();
+      });
+
+      function sendFileToServer(formData, status, callback) {
+        // var uploadURL = 'http://10.200.170.166:8089/fileupload/picUp?path=test';
+        // var uploadURL = 'https://t-basetool.ccrgt.com/fileupload/picUp?path=images';
+        var extraData = {}; //Extra Data.
+        
+        var jqXHR = $.ajax({
+          xhr: function() {
+            var xhrobj = $.ajaxSettings.xhr();
+            if (xhrobj.upload) {
+              xhrobj.upload.addEventListener(
+                'progress',
+                function(event) {
+                  var percent = 0;
+                  var position = event.loaded || event.position;
+                  var total = event.total;
+                  if (event.lengthComputable) {
+                    percent = Math.ceil((position / total) * 100);
+                  }
+                  //Set progress
+                  status.setProgress(percent);
+                },
+                false
+              );
+            }
+            return xhrobj;
+          },
+          url: window.uploadURL,
+          type: 'POST',
+          crossDomain:true,
+          contentType: false,
+          processData: false,
+          cache: false,
+          data: formData,
+          success: function(data) {
+            callback && callback(data);
+          }
+        });
+        // status.setAbort(jqXHR);
+      }
+
+      function createStatusbar() {
+        this.statusbar = $('<div class="statusbar"></div>');
+        this.filename = $('<div class="filename"></div>').appendTo(
+          this.statusbar
+        );
+        this.size = $('<div class="filesize"</div>').appendTo(this.statusbar);
+        this.progressBar = $(
+          '<div class="progressBar"><div></div></div>'
+        ).appendTo(this.statusbar);
+        this.url = $(
+          '<div class="url"></div>'
+        ).appendTo(this.statusbar);
+        $('#status').prepend(this.statusbar);
+        var self = this.statusbar;
+        setTimeout(function () {
+          self.css('opacity', 1);
+        }, 50);
+
+        this.setFileNameSize = function(name, size) {
+          var sizeStr = '';
+          var sizeKB = size / 1024;
+          if (parseInt(sizeKB) > 1024) {
+            var sizeMB = sizeKB / 1024;
+            sizeStr = sizeMB.toFixed(2) + ' MB';
+          } else {
+            sizeStr = sizeKB.toFixed(2) + ' KB';
+          }
+
+          this.filename.html(name);
+          this.size.html(sizeStr);
+        };
+        this.setProgress = function(progress) {
+          var progressBarWidth = (progress * this.progressBar.width()) / 100;
+          this.progressBar
+            .find('div')
+            .animate({ width: progressBarWidth }, 10)
+            .html(progress + '% ');
+        };
+        this.setUrl = function(url) {
+          this.url.append('<a href="' + url + '" target="_blank">链接</a>')
+          var copyBtn = $(document.createElement('button'))
+          copyBtn.html('复制链接')
+          copyBtn.on('click', function() {
+            copyToClipboard(url)
+          })
+          this.url.append(copyBtn)
+        }
+      }
+
+      function handleFileUpload(files) {
+        for (var i = 0; i < files.length; i++) {
+          var fd = new FormData();
+          fd.append('file', files[i]);
+          var name = files[i].name;
+          var size = files[i].size;
+          let status = new createStatusbar();
+          status.setFileNameSize(name, size);
+          
+          // status.setProgress(100);
+          sendFileToServer(fd, status, function (res) {
+            console.log(res.data.fileUrl);
+            status.setUrl(res.data.fileUrl);
+            status.setProgress(100);
+            saveStatus({
+              name: name,
+              size: size,
+              url: res.data.fileUrl,
+            });
+          });
+        }
+      }
+      var localStatus = [];
+      function saveStatus(status) {
+        localStatus.push(status);
+        localStorage.setItem('__image_status__', JSON.stringify(localStatus));
+      }
+
+      function initStatus() {
+        if (localStorage.getItem('__image_status__')) {
+          localStatus = JSON.parse(localStorage.getItem('__image_status__'));
+        }
+        for (var i = 0; i < localStatus.length; i++) {
+          var status = new createStatusbar();
+          status.setFileNameSize(localStatus[i].name, localStatus[i].size);
+          status.setUrl(localStatus[i].url);
+          status.setProgress(100);
+        }
+        // $('#status').prepend('<div class="br"></div>');
+      }
+
+
+    function copyToClipboard(str) {
+      const el = document.createElement('textarea');
+      el.value = str;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    };
+    </script>
+  </body>
+</html>
