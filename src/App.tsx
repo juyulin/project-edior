@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import { Layout, } from 'antd';
 import 'antd/dist/antd.css';
-import PageEditor from './pages/pageEditor';
 import ProjectEditor from './pages/projectEditor'
 import './App.css';
 import { DndProvider } from 'react-dnd'
@@ -23,10 +22,7 @@ interface router {
   component?: React.ComponentType<any>
   routes?: Array<router>
 }
-const routers: Array<router> = [{
-  path: '/pageEditor',
-  component: PageEditor
-}, {
+const routers: Array<router> = [ {
   path: "/projectEditor",
   component: ProjectEditor
 }]

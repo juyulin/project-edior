@@ -1,20 +1,14 @@
 import { combineReducers } from 'redux'
-import componentTypes from './componentTypes/reducer';
-import project from './project/reducer'
-import { ComponentTypeState } from './componentTypes/type';
-import { ProjectState } from './project/type';
-import projectEditor, { projectEditorState } from './projectEditor/reducer'
+import { stat } from 'fs';
 
 
 export interface State {
-  componentTypes: ComponentTypeState;
-  project: ProjectState;
-  projectEditor: projectEditorState
+
 }
 
+const initState = {}
+
 export default combineReducers({
-  componentTypes,
-  project,
-  projectEditor
+  aa: (state = initState) =>  state
 })
 
