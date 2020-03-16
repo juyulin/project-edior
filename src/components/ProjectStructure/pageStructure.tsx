@@ -1,9 +1,20 @@
 import React from 'react';
 import { Tabs } from 'antd';
-import { RouterNode } from '../../types/project'
+import { RouterNode, Library } from '../../types/project'
 
 const { TabPane } = Tabs;
 
+
+const libraies:Array<Library> = [{
+  name: "antd",
+  exports: [{
+    path: "index",
+    exports: [{
+      type: "Component",
+      name: "Input"
+    }]
+  }]
+}]
 
 export interface PageStructureProps {
   data: RouterNode

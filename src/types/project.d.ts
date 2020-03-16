@@ -24,19 +24,23 @@ export interface DependencyNode {
 export interface Dependency {
   path: string
   desc: string
-  output: Array<>
+  output: Array<any>
 }
 
 export interface Library {
   name: string;
   desc?: string
   path?: string;
-  exports: Array<{
+  outputs: Array<{
     path: string;
-    exports: Array<DependencyExport>
+    outputs: Array<DependencyExport>
   }>
 }
 
+export interface Output {
+  name: string;
+  
+}
 export interface Export {
   type: "Function" | "Action" | "Selector"
   name: string;
