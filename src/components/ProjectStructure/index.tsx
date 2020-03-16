@@ -5,15 +5,16 @@ import PageSelect from './pageSelect'
 interface ProjectStructure {
   data: ProjectNode
 }
+
 export default (props: ProjectStructure) => {
   const { data } = props;
-  const { pages } = data;
+  const { routers } = data;
   return(
     <div>
       <PageSelect
-        data={pages.map(({path, desc}) => ({
+        data={routers.map(({path, desc}) => ({
           key: path,
-          desc
+          desc: desc || path
         }))} 
       /> 
       <PageStructure />

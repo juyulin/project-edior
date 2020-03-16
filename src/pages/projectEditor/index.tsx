@@ -5,8 +5,8 @@ import { ProjectNode } from '../../types/project'
 
 const data: ProjectNode = {
   type: "ProjectNode",
-  pages: [{
-    type: "PageNode",
+  routers: [{
+    type: "RouterNode",
     path: "index",
     desc: "首页",
     components: [],
@@ -17,7 +17,12 @@ const data: ProjectNode = {
       stateCreator: [],
       body: [{
         type: "ComponentElement",
-        name: "div"
+        name: {
+          type: "Identifier",
+          value: "div"
+        },
+        props: [],
+        children: []
       }]
     }
   }]

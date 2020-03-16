@@ -1,6 +1,5 @@
 import { File } from '@babel/types'
 import { Action } from 'history';
-import { ActionCreator } from 'dnd-core';
 
 export interface Path {
   name: string;
@@ -16,15 +15,42 @@ export interface BaseFile {
 }
 
 
-export interface dependency {
+export interface DependencyNode {
+  type: "DependencyNode"
   lib: string;
-  name?: string
+  imports: Array<string>
+}
+
+export interface Dependency {
+  path: string
+  desc: string
+  output: Array<>
+}
+
+export interface Library {
+  name: string;
+  desc?: string
+  path?: string;
+  exports: Array<{
+    path: string;
+    exports: Array<DependencyExport>
+  }>
+}
+
+export interface Export {
+  type: "Function" | "Action" | "Selector"
+  name: string;
+  desc: string;
+}
+export interface LibraryExport {
+  key: string;
+  desc: string
 }
 
 export interface Page extends BaseFile {
   path: string;
   desc: string;
-  dependencies: Array<dependency>;
+  dependencies: Array<Dependency>;
   components: Array<BaseComponent>;
   file: File;
   style: Object;
@@ -38,9 +64,20 @@ export interface BaseNode {
 }
 export interface ProjectNode extends BaseNode{
   type: "ProjectNode"
-  pages: Array<PageNode>
+  routers: Array<Router>
 }
 
+export interface Identifier {
+  type: "Identifier"
+  value: string
+}
+export interface RouterNode {
+  type: "RouterNode"
+  path: string
+  desc?: string
+  index: ComponentNode
+  children?: Array<Router>
+}
 
 export interface PageNode extends BaseNode {
   type: "PageNode"
@@ -49,18 +86,15 @@ export interface PageNode extends BaseNode {
   index: ComponentNode
 }
 
+
+
 export interface DependencyNode extends BaseNode {
   type: "DependencyNode"
   value: Library
 }
 
-export interface Library {
-  name: string;
-  exports: Array<{
-    type: "Component" 
-    name: string;
-  }>
-}
+
+
 
 export interface ComponentNode {
   type: "ComponentNode"
@@ -72,9 +106,9 @@ export interface ComponentNode {
 }
 export interface ComponentElement {
   type: "ComponentElement"
-  name: Namespace
+  name: Namespace | Identifier
   props: Array[any]
-  children: ComponentElement | string
+  children: Array<ComponentElement | string>
 }
 
 interface ComponentProp {
