@@ -33,8 +33,12 @@ export interface Library {
   path?: string;
   outputs: Array<{
     path: string;
-    outputs: Array<DependencyExport>
+    outputs: Array<LibraryOutput>
   }>
+}
+export interface LibraryOutput {
+  name: string;
+  desc?: string
 }
 
 export interface Output {
