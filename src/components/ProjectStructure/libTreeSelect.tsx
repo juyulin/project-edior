@@ -34,6 +34,10 @@ export default (props: LibTreeSelect) => {
   const { data } = props;
   const treeData = transform(data)
   return (
-    <Tree treeData={treeData}></Tree>
+    <Tree 
+      checkable
+      treeData={treeData}
+    />
+
   )
 }

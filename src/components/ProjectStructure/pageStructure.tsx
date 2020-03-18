@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from 'antd';
 import { RouterNode, Library } from '../../types/project'
 import LibTreeSelect from './libTreeSelect'
+import ComponentTree from './componentTree'
 const { TabPane } = Tabs;
 
 
@@ -25,12 +26,12 @@ export default (props: PageStructureProps) => {
   return(
     <Tabs>
       <TabPane tab="Tab 1" key="1">
+        <ComponentTree />
+      </TabPane>
+      <TabPane tab="Tab 1" key="2">
         <LibTreeSelect
           data={libraries}
         />
-      </TabPane>
-      <TabPane tab="Tab 1" key="2">
-        Content of tab 1
       </TabPane>
     </Tabs>
   )

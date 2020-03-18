@@ -106,12 +106,15 @@ export interface DependencyNode extends BaseNode {
 
 export interface ComponentNode {
   type: "ComponentNode"
+  name?: string; 
+  desc?: string
   dependencies:  Array<DependencyNode>
   mounted: Array<ActionCreator>
   stateCreator: Array<Selector>
-  body: Array<ComponentElement>
+  children: Array<ComponentElement>
   
 }
+
 export interface ComponentElement {
   type: "ComponentElement"
   name: Namespace | Identifier
@@ -119,11 +122,6 @@ export interface ComponentElement {
   children: Array<ComponentElement | string>
 }
 
-interface ComponentProp {
-  type: ComponentProp
-  name: Namespace
-  value: any
-}
 
 
 interface Selector {
