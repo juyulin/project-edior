@@ -1,12 +1,27 @@
 import { Store } from 'redux'
 import { getBatch } from './batch';
+export interface NullListeners {
+  notify: () => void
+}
 const nullListeners = { notify() {} }
 type listener = {
   callback: Function,
   next: listener | null,
   prev: listener | null
 }
-function createListenerCollection() {
+type listenerCollection = {
+  clear: () => void,
+  notify:  () => void,
+  get: () => Array<listener>,
+  subscribe: (callback: Function) => Unsubscribe,
+
+}
+
+export interface Unsubscribe {
+  (): void
+}
+
+function createListenerCollection() : listenerCollection{
   const batch = getBatch()
   let first: listener | null = null
   let last: listener | null = null
@@ -71,32 +86,50 @@ function createListenerCollection() {
 }
 export default class Subscription{
   store: Store;
-  unsubscribe: null
-  listeners = nullListeners
-  parentSub: Subscription
-  constructor(store: Store, parentSub: Subscription) {
+  unsubscribe: null | Unsubscribe;
+  listeners: NullListeners | listenerCollection;
+  parentSub: Subscription | null | undefined
+  onStateChange: null | Function
+  constructor(store: Store, parentSub?: Subscription) {
     this.store = store
     this.unsubscribe = null
     this.parentSub = parentSub;
+    this.listeners = nullListeners;
+    this.onStateChange = null
   }
-  trySubscribe() {
+
+  notifyNestedSubs() {
+    this.listeners.notify()
+  }
+
+  tryUnsubscribe = () => {
+    if (this.unsubscribe) {
+      const listeners = this.listeners as listenerCollection
+      this.unsubscribe()
+      this.unsubscribe = null
+      listeners.clear()
+      this.listeners = nullListeners
+    }
+  }
+  trySubscribe = () => {
     if (!this.unsubscribe) {
       this.unsubscribe = this.parentSub
         ? this.parentSub.addNestedSub(this.handleChangeWrapper)
         : this.store.subscribe(this.handleChangeWrapper)
 
-      // this.listeners = createListenerCollection()
+      this.listeners = createListenerCollection()
     }
   }
   handleChangeWrapper = () => {
-
+    if (this.onStateChange) {
+      this.onStateChange()
+    }
   }
 
-  addNestedSub = () => {
-
-  }
-  addNestedSub = (listener: ) => {
+  addNestedSub = (listener: Function ) => {
     this.trySubscribe()
-    return this.listeners.subscribe(listener)
+    const listeners = this.listeners as listenerCollection;
+
+    return listeners.subscribe(listener)
   }
 }
